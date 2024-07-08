@@ -10,46 +10,45 @@ export default function Home() {
         if (user) {
             return (
                 <Nav className="me-auto ">
-                    <Nav.Link href="">
-                        <Link to="/shop">
-                            Shop
-                        </Link>
-                    </Nav.Link>
-                    <Nav.Link href="">
-                        <Link to="/profile">
-                            Profile
-                        </Link>
-                    </Nav.Link>
-                    <Nav.Link className="text-light bg-danger p-2 rounded">
+                      <Link to="/" className="mx-2 p-1">
+                                    Home
+                                </Link>
+                    <Link to="/shop" className="mx-2 p-1">
+                        Shop
+                    </Link>
+                    <Link to="/profile" className="mx-2 p-1">
+                        Profile
+                    </Link>
+                    <Link className="text-light bg-danger p-1 rounded">
                         Log out
-                    </Nav.Link>
+                    </Link>
                 </Nav>
             )
         } else {
             return (
                 <Nav className="me-auto ">
-                    <Nav.Link href="">
-                        <Link to="/shop">
-                            Shop
-                        </Link>
-                    </Nav.Link>
-                    <Nav.Link href="">
-                        <Link to="/log-in">
-                            Log in
-                        </Link>
-                    </Nav.Link>
+                      <Link to="/" className="mx-2 p-1">
+                                    Home
+                                </Link>
+                    <Link to="/shop" className="mx-2 p-1">
+                        Shop
+                    </Link>
+                    <Link to="/log-in" className="mx-2 p-1">
+                        Log in
+                    </Link>
+
                 </Nav>
             )
         }
     }
-
-
     return (
         <>
             <header>
                 <Navbar expand="lg" className="bg-body-tertiary">
                     <Container>
-                        <Navbar.Brand href="">Computer shop</Navbar.Brand>
+                        <Navbar.Brand href="">
+                            <Link to="/">Computer shop</Link>
+                        </Navbar.Brand>
                         <Navbar.Toggle aria-controls="basic-navbar-nav" />
                         <Navbar.Collapse id="basic-navbar-nav">
                             {showMenu()}
