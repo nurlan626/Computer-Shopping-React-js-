@@ -1,11 +1,12 @@
 import { Alert, Container, Nav, Navbar } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from 'react';
+import {  useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Row from 'react-bootstrap/Row';
+import { logInUser } from "../data-api/dataApi"
 
 export default function LogIn() {
     const [validated, setValidated] = useState(false);
@@ -23,21 +24,23 @@ export default function LogIn() {
             event.stopPropagation();
         } else {
             event.stopPropagation();
-
-            console.log(formData)
-            logIn(formData)
-
+            const user = logInUser(formData);
+            if (user) {
+                setSuccessLogIn('success');
+                setTimeout(() => {
+                    navigate("/");
+                }, 3000);
+            } else {
+                setFormData({
+                        username: "",
+                        password: ""
+                    }
+                )
+                setSuccessLogIn('error');
+            }
         }
-
         setValidated(true);
     };
-    function logIn(formData) {
-        setSuccessLogIn('error');
-        setTimeout(() => {
-            navigate("/");
-        }, 4000)
-
-    }
     function showResultOfLogIn() {
         if (successLogIn === 'success') {
             return (
@@ -52,7 +55,6 @@ export default function LogIn() {
                 </Alert>
             )
         }
-
     }
     return (
         <>
@@ -72,17 +74,14 @@ export default function LogIn() {
                                         Home
                                     </Link>
                                 </Nav.Link>
-
                             </Nav>
                         </Navbar.Collapse>
                     </Container>
                 </Navbar>
             </header>
             <section>
-
                 <div className="col-5 m-auto">
-
-                    <Form noValidate validated={validated} onSubmit={handleSubmit}>
+                    <Form  noValidate validated={validated} onSubmit={handleSubmit}>
                         <Row className="mb-3">
                             <h1 className="text-center">Log in</h1>
                             <div className="my-3">{showResultOfLogIn()}</div>
@@ -101,7 +100,6 @@ export default function LogIn() {
                                 />
                                 <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
                             </Form.Group>
-
                             <Form.Group as={Col} md="12" controlId="validationCustomPassword" className="my-2">
                                 <Form.Label>Password</Form.Label>
                                 <Form.Control
@@ -117,17 +115,13 @@ export default function LogIn() {
                                 />
                                 <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
                             </Form.Group>
-
-
                         </Row>
-
                         <Button type="submit">Submit</Button>
                         <div className="my-4">
-                        Don't have an account? <Link className="btn btn-primary" to="/registration">Registration</Link>
+                            Don't have an account? <Link className="btn btn-primary" to="/registration">Registration</Link>
                         </div>
                     </Form>
                 </div>
-
             </section>
         </>
     )

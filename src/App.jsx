@@ -1,4 +1,4 @@
-import { Route, Router, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ErrorPage from "./pages/ErrorPage";
@@ -6,7 +6,6 @@ import LogIn from "./pages/LogIn";
 import Registration from "./pages/Registration";
 import Profile from "./pages/Profile";
 import './App.css'
-import { getUser, initData } from "./data-api/dataApi";
 
 
 export default  function App() {

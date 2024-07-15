@@ -1,25 +1,30 @@
 import { Carousel, CarouselCaption, Container, Nav, Navbar } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { getUser, initData } from "../data-api/dataApi";
+import { getUserDataIfLogIn, initData, logOut } from "../data-api/dataApi";
 import { useState } from "react";
 
 export default function Home() {
-    initData();
-    const [user, setUser] = useState(getUser());
+    const [user, setUser] = useState(getUserDataIfLogIn());
+    function logOutUser() {
+        logOut();
+        setUser(null)
+    }
+
+
     function showMenu() {
         if (user) {
             return (
                 <Nav className="me-auto ">
-                      <Link to="/" className="mx-2 p-1">
-                                    Home
-                                </Link>
+                    <Link to="/" className="mx-2 p-1">
+                        Home
+                    </Link>
                     <Link to="/shop" className="mx-2 p-1">
                         Shop
                     </Link>
                     <Link to="/profile" className="mx-2 p-1">
                         Profile
                     </Link>
-                    <Link className="text-light bg-danger p-1 rounded">
+                    <Link onClick={logOutUser} className="text-light bg-danger p-1 rounded">
                         Log out
                     </Link>
                 </Nav>
@@ -27,9 +32,9 @@ export default function Home() {
         } else {
             return (
                 <Nav className="me-auto ">
-                      <Link to="/" className="mx-2 p-1">
-                                    Home
-                                </Link>
+                    <Link to="/" className="mx-2 p-1">
+                        Home
+                    </Link>
                     <Link to="/shop" className="mx-2 p-1">
                         Shop
                     </Link>

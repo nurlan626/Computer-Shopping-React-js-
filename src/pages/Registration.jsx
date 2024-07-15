@@ -1,6 +1,6 @@
 import { Alert, Carousel, CarouselCaption, Container, Nav, Navbar } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { getUser, initData } from "../data-api/dataApi";
+import {  registrateUser } from "../data-api/dataApi";
 import { useState } from "react";
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
@@ -16,7 +16,8 @@ export default function LogIn() {
         surname: "",
         username: "",
         tel: "",
-        password: ""
+        password: "",
+        products: []
     })
     const [successfulRegistration, setSuccessfulRegistration] = useState('')
 
@@ -35,6 +36,8 @@ export default function LogIn() {
         setValidated(true);
     };
     function registration(formData) {
+        const newUser = formData;
+        registrateUser(newUser)
         setSuccessfulRegistration('success');
         setTimeout(() => {
             navigate("/");
