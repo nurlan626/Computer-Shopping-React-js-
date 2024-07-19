@@ -1,4 +1,4 @@
-export const users = [
+export const usersData = [
     {
         id: 1,
         name: "Timur ",
@@ -250,7 +250,6 @@ export const users = [
         name: "Timur ",
         surname: "Timurov",
         password: "123",
-        name: "John Smith",
         tel: "070-988-9999",
         products: [
             {
@@ -439,45 +438,51 @@ export const users = [
 
 
 export function initData() {
-    localStorage.clear();
-    localStorage.setItem("userId", '1');
-    localStorage.setItem("users", JSON.stringify(users));
+    // Проверяем, существует ли массив users в localStorage
+    let users = JSON.parse(localStorage.getItem("users"));
+    // Если массив пользователей отсутствует, инициализируем его
+    if (!users) {
+        localStorage.clear();
+        localStorage.setItem("userId", null);
+        localStorage.setItem("users", JSON.stringify(usersData));
+    }
 }
 export function registrateUser(newUser) {
-    let newUseriWithId = {
+    // Генерация случайного идентификатора для нового пользователя
+    const newUserWithId = {
         id: Math.random(),
         ...newUser
-    }
-    const users = JSON.parse(localStorage.getItem("users"));
-    const newUsers = [...users, newUseriWithId];
+    };
+
+    // Извлечение пользователей из localStorage или установка пустого массива, если пользователей нет
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+
+    // Добавление нового пользователя к существующим пользователям
+    const newUsers = [...users, newUserWithId];
+
+    // Сохранение обновленного списка пользователей в localStorage
     localStorage.setItem('users', JSON.stringify(newUsers));
-
-
 }
 export function logInUser(formData) {
-    const users = JSON.parse(localStorage.getItem("users"));
-    const user = users.find((item) => {
-        return item.username === formData.username && item.password === formData.password
-    })
-    if (user) {
-        localStorage.setItem('userId', user.id);
-        return user;
+    // Получаем список пользователей из localStorage
+    const users = JSON.parse(localStorage.getItem("users")) || [];
 
+    // Находим пользователя по имени и паролю
+    const user = users.find(item =>
+        item.username === formData.username && item.password === formData.password
+    );
+    if (user) {
+        // Сохраняем ID пользователя в localStorage
+        localStorage.setItem('userId', user.id);
+        // Возвращаем найденного пользователя
+        return user;
     } else {
+        // Возвращаем false, если пользователь не найден
         return false;
     }
-
 }
 
-export function getUserDataIfLogIn() {
-    let id = JSON.parse(localStorage.getItem("userId"));
-    if (!id) {
-        return null;
-    }
-    const users = JSON.parse(localStorage.getItem("users"));
-    const user = users.find((user) => user.id === id);
-    return user ? user : null;
-}
+
 
 export function logOut() {
     localStorage.setItem("userId", null)
@@ -485,23 +490,31 @@ export function logOut() {
 }
 
 export function getAllProducts() {
+    // Извлекаем пользователей из localStorage или используем пустой массив, если пользователей нет
     const users = JSON.parse(localStorage.getItem('users')) || [];
 
+    // Объединяем все продукты от всех пользователей в один массив
     const allProducts = users.reduce((acc, user) => {
-        return [...acc, ...user.products];
+        // Проверяем, есть ли у пользователя продукты
+        if (user.products && Array.isArray(user.products)) {
+            return [...acc, ...user.products];
+        }
+        return acc;
     }, []);
 
     return allProducts;
 }
 export function getAllBrands() {
     const allProducts = getAllProducts();
-    let allBrands = allProducts.reduce((acc, product) => {
-        return [...acc, product.category.toLowerCase()];
-    }, []);
+
+    if (!Array.isArray(allProducts)) {
+        console.error('getAllProducts() должен возвращать массив продуктов');
+        return [];
+    }
+    let allBrands = allProducts.map(product => product.category.toLowerCase());
 
     // Удаляем дублирующиеся элементы с помощью Set
     allBrands = [...new Set(allBrands)];
-
     console.log(allBrands);
     return allBrands;
 
@@ -509,14 +522,118 @@ export function getAllBrands() {
 
 
 export function getUserData() {
-    let userId =  JSON.parse(localStorage.getItem("userId"));
-    let users = JSON.parse(localStorage.getItem("users"));
-    let user = users.filter((user) => {
-        return user.id === userId
-    });
-    console.log('helllo')
-    console.log(userId)
-    return user
+    // Получаем userId из localStorage и преобразуем в число
+    const userId = JSON.parse(localStorage.getItem("userId"));
+    // Получаем список пользователей из localStorage
+    const users = JSON.parse(localStorage.getItem("users"));
+
+    // Проверка наличия userId
+    if (!userId) {
+        console.error('userId не найден в localStorage');
+        return null;
+    }
+
+    // Проверка наличия users
+    if (!users) {
+        console.error('users не найдены в localStorage');
+        return null;
+    }
+
+    // Проверка, является ли users массивом
+    if (!Array.isArray(users)) {
+        console.error('Неправильный формат данных users в localStorage');
+        return null;
+    }
+
+    // Поиск пользователя по userId
+    const user = users.find(user => user.id === userId);
+
+    // Проверка наличия пользователя
+    if (!user) {
+        console.warn(`Пользователь с id: ${userId} не найден`);
+        return null;
+    }
+
+    console.log('Найден пользователь:', user);
+
+    // Возвращаем найденного пользователя
+    return user;
+}
+
+
+
+
+export function deleteProductFromDatabase(userId, productId) {
+    // Получаем список пользователей из localStorage
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    // Находим пользователя по userId
+    const userIndex = users.findIndex(user => user.id === userId);
+
+    if (userIndex !== -1) {
+        // Находим индекс продукта у найденного пользователя
+        const productIndex = users[userIndex].products.findIndex(product => product.id === productId);
+
+        if (productIndex !== -1) {
+            // Удаляем продукт из массива у найденного пользователя
+            users[userIndex].products.splice(productIndex, 1);
+
+            // Обновляем localStorage с обновленным массивом пользователей
+            localStorage.setItem('users', JSON.stringify(users));
+
+            // Возвращаем обновленного пользователя (необязательно, зависит от требований)
+            return users[userIndex];
+        } else {
+            console.error(`Продукт с id ${productId} не найден у пользователя с id ${userId}`);
+            return null; // Возвращаем null, если продукт не найден у пользователя
+        }
+    } else {
+        console.error(`Пользователь с id ${userId} не найден в localStorage`);
+        return null; // Возвращаем null, если пользователь не найден
+    }
+}
+
+export function addNewProductToDatabase(user, newProduct) {
+    // Получаем список пользователей из localStorage
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    // Находим индекс пользователя по его id
+    const userIndex = users.findIndex(item => item.id === user.id);
+
+    if (userIndex !== -1) {
+        // Обновляем список продуктов пользователя
+        users[userIndex].products = [...users[userIndex].products, newProduct];
+        // Обновляем localStorage с обновленным массивом пользователей
+        localStorage.setItem('users', JSON.stringify(users));
+        // Возвращаем обновленного пользователя
+        return users[userIndex];
+    } else {
+        console.error(`Пользователь с id ${user.id} не найден в localStorage`);
+        return null; // Возвращаем null, если пользователь не найден
+    }
+}
+
+
+export function editProductFromDatabase(user, updatedProducts) {
+    // Создаем обновленного пользователя с обновленным списком продуктов
+    const updatedUser = { ...user, products: [...updatedProducts] };
+    // Получаем список пользователей из localStorage
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    // Находим индекс пользователя по его id
+    const userIndex = users.findIndex(item => item.id === user.id);
+
+    if (userIndex !== -1) {
+        // Обновляем пользователя в массиве пользователей
+        users[userIndex] = updatedUser;
+        // Обновляем localStorage с обновленным массивом пользователей
+        localStorage.setItem('users', JSON.stringify(users));
+        // Возвращаем обновленного пользователя
+        return users[userIndex];
+    } else {
+        console.error(`Пользователь с id ${user.id} не найден в localStorage`);
+        return null; // Возвращаем null, если пользователь не найден
+    }
 }
 
 

@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, Container, Form, InputGroup, Modal, Nav, Navbar, Row, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { getUserData } from "../data-api/dataApi";
+import { getUserData, deleteProductFromDatabase, addNewProductToDatabase, editProductFromDatabase } from "../data-api/dataApi";
 import Col from 'react-bootstrap/Col';
 
 export default function Profile() {
     const [user, setUser] = useState();
-    const [show, setShow] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const [validated, setValidated] = useState(false);
     const [currentProduct, setCurrentProduct] = useState({});
     const imageRef = useRef();
@@ -15,7 +15,6 @@ export default function Profile() {
         setUser(getUserData());
     }, [])
 
-    const handleClose = () => setShow(false);
 
     const handleSubmit = (event) => {
         const form = event.currentTarget;
@@ -27,16 +26,18 @@ export default function Profile() {
             // Add or edit the product based on currentProduct state
             if (currentProduct.id) {
                 // Edit existing product
-                const updatedComputers = user.computers.map(computer =>
-                    computer.id === currentProduct.id ? currentProduct : computer
+                const updatedProducts = user.products.map(product =>
+                    product.id === currentProduct.id ? currentProduct : product
                 );
-                setUser({ ...user, computers: updatedComputers });
+
+                setUser(editProductFromDatabase(user, updatedProducts));
             } else {
-                // Add new product
-                const newProduct = { ...currentProduct, id: user.computers.length + 1 };
-                setUser({ ...user, computers: [...user.computers, newProduct] });
+
+                const newProduct = { ...currentProduct, id: Math.random() * 1000 };
+                setUser(addNewProductToDatabase(user, newProduct));
             }
-            handleClose();
+
+            setShowModal(false)
         }
         setValidated(true);
     };
@@ -49,19 +50,18 @@ export default function Profile() {
         }
     };
 
-    const deleteProduct = (id) => {
-        const updatedComputers = user.computers.filter(computer => computer.id !== id);
-        setUser({ ...user, computers: updatedComputers });
+    const deleteProduct = (productId) => {
+        setUser(deleteProductFromDatabase(user.id, productId))
     };
 
     const editProduct = (product) => {
         setCurrentProduct(product);
-        setShow(true);
+        setShowModal(true);
     };
 
     const createNewProduct = () => {
         setCurrentProduct({});
-        setShow(true);
+        setShowModal(true);
     };
 
     return (
@@ -99,15 +99,14 @@ export default function Profile() {
                             </tr>
                         </thead>
                         <tbody>
-                            {console.log(user)}
-                            {user.products.map((product) => (
+                            {user && user.products.map((product) => (
                                 <tr key={product.id}>
                                     <td>{product.id}</td>
                                     <td>{product.name}</td>
                                     <td>
                                         <img width={100} src={product.img} alt="" />
                                     </td>
-                                    <td>{computer.price}$</td>
+                                    <td>{product.price}$</td>
                                     <td>
                                         <Button className="btn btn-danger mx-2" onClick={() => deleteProduct(product.id)}>Delete</Button>
                                         <Button className="btn btn-primary" onClick={() => editProduct(product)}>Edit</Button>
@@ -119,7 +118,7 @@ export default function Profile() {
                 </div>
             </section>
 
-            <Modal size="lg" show={show} onHide={handleClose}>
+            <Modal size="lg" show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>{currentProduct.id ? "Edit Product" : "New Product"}</Modal.Title>
                 </Modal.Header>
@@ -256,8 +255,8 @@ export default function Profile() {
                                         required
                                         type="text"
                                         placeholder="Operating System"
-                                        name="os"
-                                        value={currentProduct.os || ""}
+                                        name="operatingSystem"
+                                        value={currentProduct.operatingSystem || ""}
                                         onChange={handleChange}
                                     />
                                     <Form.Control.Feedback>Looks good!</Form.Control.Feedback>

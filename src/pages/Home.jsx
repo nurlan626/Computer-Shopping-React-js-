@@ -1,15 +1,20 @@
 import { Carousel, CarouselCaption, Container, Nav, Navbar } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { getUserDataIfLogIn, initData, logOut } from "../data-api/dataApi";
-import { useState } from "react";
+import { getUserData, initData, logOut } from "../data-api/dataApi";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-    const [user, setUser] = useState(getUserDataIfLogIn());
+    const [user, setUser] = useState();
+    
     function logOutUser() {
         logOut();
         setUser(null)
     }
-
+    useEffect(() => {
+        initData();
+        setUser(getUserData())
+    }, [])
+  
 
     function showMenu() {
         if (user) {
