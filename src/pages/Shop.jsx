@@ -110,9 +110,6 @@ export default function Shop() {
                     </div>
                 </div>
             </section>
-
-
-
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>Full info</Modal.Title>
